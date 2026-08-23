@@ -1,23 +1,32 @@
 package com.portfolio.my_portfolio_backend.service;
 
+import com.portfolio.my_portfolio_backend.exception.ValidationException;
+
 import com.portfolio.my_portfolio_backend.model.PersonalInfo;
 import com.portfolio.my_portfolio_backend.repository.IPersonalInfoRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class PersonalInfoServiceImpl implements IPersonalInfoService {
 
     private final IPersonalInfoRepository personalInfoRepository;
-
-    public PersonalInfoServiceImpl(IPersonalInfoRepository personalInfoRepository) {
-        this.personalInfoRepository = personalInfoRepository;
-    }
+    private final Validator validator;
 
     @Override
     public PersonalInfo save(PersonalInfo personalInfo) {
+        BindingResult result = new BeanPropertyBindingResult(personalInfo, "personalInfo");
+        validator.validate(personalInfo, result);
+        if (result.hasErrors()) {
+            throw new ValidationException(result);
+        }
         return personalInfoRepository.save(personalInfo);
     }
 
