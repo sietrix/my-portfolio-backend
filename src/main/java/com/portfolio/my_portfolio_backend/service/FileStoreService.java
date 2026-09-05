@@ -8,12 +8,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 @Service
 public class FileStoreService {
 
-    @Value("$(file.upload.der")
+    @Value("${file.upload.dir}")
     private String uploadDir;
 
     public String storeFile(MultipartFile file) throws IOException {
@@ -32,15 +33,16 @@ public class FileStoreService {
         }
         // creamos un nombre aleatorio pero unico (UUID)
         // tipo b4a893f3-3a16-4d16-a1dc-8040e4c9ab0f + extensión
-        String fileName = UUID.randomUUID() + "." + extension;
+        //f47ac10b-58cc-4372-a567-0e02b2c3d479.jpg
+        String fileName = UUID.randomUUID() + extension;
 
-        // Creación de la ruta
-        Path filePath = Paths.get(uploadDir + fileName).normalize();
+        //creación de la ruta
+        Path filePath = Paths.get(uploadDir, fileName).normalize();
 
-        // Copia del archivo al destino
-        Files.copy(file.getInputStream(), filePath);
+        //copia del archivo al destino
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        // Retorno de la url relativa
-        return "img/projects/" + fileName;
+        //retorno de la url relativa
+        return "/img/projects/" + fileName;
     }
 }
